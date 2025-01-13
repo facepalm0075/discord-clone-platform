@@ -7,10 +7,14 @@ interface UseAudioBufferQueueOptions {
 	bufferThreshold?: number; // Default buffer threshold (in frames)
 }
 let isDeafen = false;
+let soundGain = 1.0;
 
 const usePAQ2 = (initialOptions: UseAudioBufferQueueOptions = {}) => {
 	const deafenStatus = useAppSelector((state) => state.mainStatusSlice.isDeafen);
 	isDeafen = deafenStatus;
+
+	const sG = useAppSelector((state) => state.mainStatusSlice.outputVolume);
+	soundGain = sG;
 
 	const audioContextRef = useRef<AudioContext | null>(null);
 	const bufferMapRef = useRef<Map<string, Float32Array[]>>(new Map()); // Map for multiple buffers
@@ -65,13 +69,18 @@ const usePAQ2 = (initialOptions: UseAudioBufferQueueOptions = {}) => {
 				}
 			}
 		},
-		[bufferThreshold]
+		[bufferThreshold, soundGain]
 	);
 
 	const playAudio = useCallback(
 		(name: string) => {
 			if (!audioContextRef.current) return;
 			const audioContext = audioContextRef.current;
+
+			// sound gain
+			const gainNode = audioContext.createGain();
+			gainNode.gain.value = soundGain;
+			gainNode.connect(audioContext.destination);
 
 			// Ensure that AudioContext is resumed if needed (in case of suspended state)
 			if (audioContext.state === "suspended") {
@@ -108,7 +117,7 @@ const usePAQ2 = (initialOptions: UseAudioBufferQueueOptions = {}) => {
 			// Create a BufferSourceNode to play the buffer
 			const source = audioContext.createBufferSource();
 			source.buffer = audioBuffer;
-			source.connect(audioContext.destination);
+			source.connect(gainNode);
 			source.start();
 
 			source.onended = () => {
@@ -119,7 +128,7 @@ const usePAQ2 = (initialOptions: UseAudioBufferQueueOptions = {}) => {
 				}
 			};
 		},
-		[sampleRate]
+		[sampleRate, soundGain]
 	);
 
 	// Add this function to remove a buffer for a specific name

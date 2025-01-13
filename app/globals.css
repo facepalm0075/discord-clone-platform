@@ -198,3 +198,11 @@ body {
 	align-items: center;
 	padding: 7px 0px;
 }
+
+.setting-items span:first-of-type {
+	font-size: 14px;
+}
+
+.sens-change span {
+	color: var(--foreground-color) !important;
+}

@@ -31,6 +31,7 @@ function MainComponent() {
 	useEffect(() => {
 		socketConnect();
 	}, []);
+
 	const joinedRoom = useAppSelector((state) => state.mainStatusSlice.joinedRoom);
 
 	useVoiceSend(socket);
@@ -43,6 +44,12 @@ function MainComponent() {
 	const toggleOpenChat = () => {
 		setIsChatOpen(!isChatOpen);
 	};
+
+	useEffect(() => {
+		if (!joinedRoom) {
+			setIsChatOpen(false);
+		}
+	}, [joinedRoom]);
 
 	useEffect(() => {
 		if (!isMobile) {

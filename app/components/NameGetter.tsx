@@ -27,7 +27,12 @@ function NameGetter({ children }: props) {
 			{val && val.userName && val.userName !== "" ? (
 				children
 			) : (
-				<NameInput callback={callbackHandler} />
+				<>
+					<div className="center-screen cont-full px-2">
+						<p className="mb-3">Enter your name to join the server.</p>
+						<NameInput callback={callbackHandler} />
+					</div>
+				</>
 			)}
 		</>
 	);

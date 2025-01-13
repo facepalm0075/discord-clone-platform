@@ -3,21 +3,22 @@ import scriptProcessorAPI from "../utils/soundApis/scriptProcessorAPI";
 import workLetAPI from "../utils/soundApis/workLetAPI";
 import { globalSoundVars } from "./MainComponent";
 
-const isFireFoxBrowser = (): boolean => {
+export const isFireFoxBrowser = (): boolean => {
 	return typeof navigator !== "undefined" && /firefox/i.test(navigator.userAgent);
 };
 
 export async function startREC(
 	globalSoundVars: globalSoundVars,
 	cbHandler: (data: Float32Array) => void,
-	cbHandlerCancel: () => void
+	cbHandlerCancel: () => void,
+	thresholdDb: number
 ) {
 	if (isAudioWorkletSupported()) {
 		console.log("AudioWorklet is supported!");
 		const isFirefox = isFireFoxBrowser();
 		isFirefox
 			? scriptProcessorAPI(globalSoundVars, cbHandler)
-			: workLetAPI(globalSoundVars, cbHandler, cbHandlerCancel);
+			: workLetAPI(globalSoundVars, cbHandler, cbHandlerCancel, thresholdDb);
 	} else {
 		console.error("AudioWorklet is not supported in this browser.");
 		scriptProcessorAPI(globalSoundVars, cbHandler);

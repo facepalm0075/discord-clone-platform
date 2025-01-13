@@ -1,5 +1,6 @@
 "use client";
 import { nameType } from "@/app/components/MainComponent";
+import presistState from "@/app/utils/randomFuncs/randFuncs";
 import { createSlice } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit";
 
@@ -11,7 +12,12 @@ type mainStatusType = {
 	joinedRoom: string | null;
 	joinedRoomUsers: nameType[];
 	isTalking: boolean;
+	outputVolume: number;
+	micensitivity: number;
 };
+
+const local1 = presistState("outputVolume");
+const local2 = presistState("micensitivity");
 
 const initState: mainStatusType = {
 	isMuted: false,
@@ -21,6 +27,8 @@ const initState: mainStatusType = {
 	joinedRoom: null,
 	joinedRoomUsers: [],
 	isTalking: false,
+	outputVolume: local1.getLocalState(1.0),
+	micensitivity: local2.getLocalState(-50),
 };
 
 const mainStatusSlice = createSlice({
@@ -54,6 +62,14 @@ const mainStatusSlice = createSlice({
 		setIsTalking(state, action: PayloadAction<boolean>) {
 			state.isTalking = action.payload;
 		},
+		setOutputVolume(state, action: PayloadAction<number>) {
+			state.outputVolume = action.payload;
+			local1.localStateSaver(state.outputVolume);
+		},
+		setMicSensitivity(state, action: PayloadAction<number>) {
+			state.micensitivity = action.payload;
+			local2.localStateSaver(state.micensitivity);
+		},
 	},
 });
 
@@ -67,5 +83,7 @@ export const {
 	setRooms,
 	setJoinedRoomUsers,
 	setIsTalking,
+	setOutputVolume,
+	setMicSensitivity,
 } = mainStatusSlice.actions;
 export default mainStatusSlice.reducer;

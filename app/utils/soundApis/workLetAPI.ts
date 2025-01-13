@@ -1,11 +1,10 @@
 import { globalSoundVars } from "../../components/MainComponent";
 
-const thresholdDb = -50;
-
 const workLetAPI = async (
 	vars: globalSoundVars,
 	cb: (data: any) => void,
-	cbHandlerCancel: () => void
+	cbHandlerCancel: () => void,
+	thresholdDb: number
 ) => {
 	try {
 		// Request microphone access
@@ -34,7 +33,7 @@ const workLetAPI = async (
 		source.connect(vars.soundApiNode);
 		vars.soundApiNode.connect(vars.audioContext.destination);
 		vars.soundApiNode.port.postMessage({ thresholdDb });
-		
+
 		// Listen for messages from the worklet processor
 		vars.soundApiNode.port.onmessage = (event) => {
 			const { audioData, onStop } = event.data;

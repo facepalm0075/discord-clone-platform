@@ -5,15 +5,19 @@ import Thememode from "./ThemeBtn";
 
 import UserNameChanger from "./UserNameChanger";
 import Fullscreener from "./Fullscreener";
+import VolumeChange from "./VolumeChange";
+import { isFireFoxBrowser } from "./audioStreamFuncs";
+import SensitivityChange from "./SensitivityChange";
 
 type props = {
 	outClick: () => void;
 };
 
 function Setting({ outClick }: props) {
+	const isff: boolean = isFireFoxBrowser();
 	return (
 		<div
-			onClick={(e) => {
+			onMouseDown={(e) => {
 				if (e.target === e.currentTarget) {
 					outClick();
 				}
@@ -43,11 +47,31 @@ function Setting({ outClick }: props) {
 						<Fullscreener />
 					</div>
 				</div>
-				<div className="setting-items">
+				<div className="setting-items my-2">
 					<span>Username:</span>
 					<div className="ml-auto flex-1 ">
 						<UserNameChanger />
 					</div>
+				</div>
+				<div className="setting-items mb-2">
+					<span className="inline-block">Output Vol:</span>
+					<div className="ml-auto flex-1">
+						<VolumeChange />
+					</div>
+				</div>
+				<div style={isff ? {} : { display: "block" }} className="setting-items">
+					<span className={`inline-block${!isff && " mb-1"}`}>Mic Sensitivity:</span>
+					{isff ? (
+						<>
+							<div className="ml-auto flex-1 text-sm text-right">Not available in Firefox</div>
+						</>
+					) : (
+						<>
+							<div className="px-5">
+								<SensitivityChange />
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>

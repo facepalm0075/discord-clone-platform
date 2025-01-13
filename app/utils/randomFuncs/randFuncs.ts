@@ -35,3 +35,23 @@ export const getUserName = (): nameType => {
 
 	return data;
 };
+
+export default function presistState(name: string) {
+	const getLocalState = (defualt: number) => {
+		if (typeof window !== "undefined") {
+			const local = localStorage.getItem(name);
+			if (local) {
+				return JSON.parse(local) as number;
+			}
+		}
+		return defualt;
+	};
+
+	const localStateSaver = (state: number) => {
+		if (typeof window !== "undefined") {
+			localStorage.setItem(name, JSON.stringify(state));
+		}
+	};
+
+	return { getLocalState, localStateSaver };
+}

@@ -16,10 +16,14 @@ const SPLICE_SIZE = 20;
 let isMute = false;
 let joinedRoom: string | null = null;
 
+let thresholdDb = -50;
+
 export const useVoiceSend = (socket: Socket | null) => {
 	const muteStatus = useAppSelector((state) => state.mainStatusSlice.isMuted);
 	const conStatus = useAppSelector((state) => state.mainStatusSlice.isConnected);
 	const room = useAppSelector((state) => state.mainStatusSlice.joinedRoom);
+	const sensitivity = useAppSelector((state) => state.mainStatusSlice.micensitivity);
+	thresholdDb = sensitivity;
 
 	const dispatch = useAppDispatch();
 
@@ -60,7 +64,7 @@ export const useVoiceSend = (socket: Socket | null) => {
 
 	function startRecording() {
 		audioBuff = [];
-		startREC(globalSoundVars, cbHandler, cbHandlerCancel);
+		startREC(globalSoundVars, cbHandler, cbHandlerCancel, thresholdDb);
 	}
 	function stopRecording() {
 		audioBuff = [];
@@ -70,4 +74,10 @@ export const useVoiceSend = (socket: Socket | null) => {
 	useEffect(() => {
 		conStatus ? startRecording() : stopRecording();
 	}, [conStatus]);
+
+	useEffect(() => {
+		if (globalSoundVars.soundApiNode && globalSoundVars.soundApiNode instanceof AudioWorkletNode) {
+			globalSoundVars.soundApiNode.port.postMessage({ thresholdDb });
+		}
+	}, [sensitivity]);
 };
