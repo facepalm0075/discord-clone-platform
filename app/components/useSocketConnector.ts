@@ -12,7 +12,7 @@ export const useSocketConnector = (url: string) => {
 	};
 
 	useEffect(() => {
-		fetch("http://discord.pouyaprogramming.ir/get-rooms", {
+		fetch("https://discord-server.pouyaprogramming.ir/get-rooms", {
 			method: "GET",
 		}).then((data) => {
 			data.json().then((d) => {
