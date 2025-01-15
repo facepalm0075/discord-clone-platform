@@ -12,7 +12,7 @@ export const useSocketConnector = (url: string) => {
 	};
 
 	useEffect(() => {
-		fetch("http://192.168.1.8:3003/get-rooms", {
+		fetch("https://discord-server.pouyaprogramming.ir/get-rooms", {
 			method: "GET",
 		}).then((data) => {
 			data.json().then((d) => {
