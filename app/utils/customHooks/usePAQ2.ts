@@ -20,14 +20,14 @@ const usePAQ2 = (initialOptions: UseAudioBufferQueueOptions = {}) => {
 	const bufferMapRef = useRef<Map<string, Float32Array[]>>(new Map()); // Map for multiple buffers
 
 	// State to allow dynamic changes to sampleRate and bufferThreshold
-	const [sampleRate, setSampleRate] = useState(initialOptions.sampleRate || 48000);
-	const [bufferThreshold, setBufferThreshold] = useState(initialOptions.bufferThreshold || 48000);
+	const [sampleRate, setSampleRate] = useState(initialOptions.sampleRate || 24000);
+	const [bufferThreshold, setBufferThreshold] = useState(initialOptions.bufferThreshold || 24000);
 
 	useEffect(() => {
 		// Initialize the AudioContext
 		if (!audioContextRef.current) {
-			audioContextRef.current = new AudioContext();
-			const rate = getSampleRate();
+			audioContextRef.current = new AudioContext({ sampleRate: 24000 });
+			const rate = 24000;
 			setSampleRate(rate);
 			setBufferThreshold(rate / 2);
 		}

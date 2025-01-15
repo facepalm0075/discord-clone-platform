@@ -12,9 +12,10 @@ const workLetAPI = async (
 			audio: {
 				echoCancellation: true,
 				noiseSuppression: true,
+				sampleRate: 24000,
 			},
 		});
-		vars.audioContext = new AudioContext();
+		vars.audioContext = new AudioContext({ sampleRate: 24000 });
 
 		// Check if Audio Worklet is available
 		if (!vars.audioContext.audioWorklet) {

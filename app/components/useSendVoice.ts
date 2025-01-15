@@ -5,6 +5,7 @@ import { appendArrays, getUserName } from "../utils/randomFuncs/randFuncs";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { useEffect, useRef } from "react";
 import { setIsTalking } from "../redux/slices/mainStatusSlice";
+const { Encoder } = require("libopus.js");
 
 let audioBuff: any[] = [];
 let globalSoundVars: globalSoundVarsType = {
@@ -17,6 +18,10 @@ let isMute = false;
 let joinedRoom: string | null = null;
 
 let thresholdDb = -50;
+
+const encoder = new Encoder({ rate: 24000, channels: 1 });
+const frameSize = 480; // 20ms at 24kHz
+let pcmBuffer: any = []; // Temporary buffer to accumulate samples
 
 export const useVoiceSend = (socket: Socket | null) => {
 	const muteStatus = useAppSelector((state) => state.mainStatusSlice.isMuted);
@@ -44,15 +49,30 @@ export const useVoiceSend = (socket: Socket | null) => {
 		}, 250);
 	};
 
-	const cbHandler = (data: Float32Array) => {
+	const cbHandler = (pcmData: any[]) => {
 		if (!isMute) {
-			audioBuff.push(data);
-			if (audioBuff.length >= SPLICE_SIZE) {
-				const temp = audioBuff.splice(0, SPLICE_SIZE);
-				const combinedArray = appendArrays(temp, data.length * SPLICE_SIZE);
-				socket?.emit("audio-input", combinedArray, joinedRoom, name);
+			// Add incoming samples to the buffer
+			pcmBuffer.push(...pcmData);
+
+			// While there are enough samples for one frame, encode them
+			while (pcmBuffer.length >= frameSize) {
+				// Extract one frame of data
+				const frame = pcmBuffer.slice(0, frameSize);
+				pcmBuffer = pcmBuffer.slice(frameSize); // Remove processed samples from buffer
+
+				// Encode the frame
+				const encodedPacket = encoder.encode(new Float32Array(frame));
+				console.log(frame);
+				socket?.emit("audio-input", encodedPacket, joinedRoom, name);
 				actNcanMic();
 			}
+			// audioBuff.push(data);
+			// if (audioBuff.length >= SPLICE_SIZE) {
+			// 	const temp = audioBuff.splice(0, SPLICE_SIZE);
+			// 	const combinedArray = appendArrays(temp, data.length * SPLICE_SIZE);
+			// 	socket?.emit("audio-input", combinedArray, joinedRoom, name);
+			// 	actNcanMic();
+			// }
 		}
 	};
 
@@ -64,9 +84,11 @@ export const useVoiceSend = (socket: Socket | null) => {
 
 	function startRecording() {
 		audioBuff = [];
+		pcmBuffer = [];
 		startREC(globalSoundVars, cbHandler, cbHandlerCancel, thresholdDb);
 	}
 	function stopRecording() {
+		pcmBuffer = [];
 		audioBuff = [];
 		stopREC(globalSoundVars);
 	}

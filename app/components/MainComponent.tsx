@@ -27,9 +27,7 @@ function MainComponent() {
 	const isMobile = useIsMobile();
 	const [isChatOpen, setIsChatOpen] = useState(false);
 	const [isSettingOpen, setIsSettingOpen] = useState(false);
-	const { socket, socketConnect } = useSocketConnector(
-		"https://discord-server.pouyaprogramming.ir/chat"
-	);
+	const { socket, socketConnect } = useSocketConnector("http://192.168.1.8:3003/chat");
 	useEffect(() => {
 		socketConnect();
 	}, []);

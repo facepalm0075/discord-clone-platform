@@ -24,7 +24,7 @@ export function appendArrays(chunks: any[], totalSize: number): Float32Array {
 }
 
 export const getSampleRate = (): number => {
-	const constest = new AudioContext();
+	const constest = new AudioContext({ sampleRate: 24000 });
 	const rate = constest.sampleRate;
 	constest.close();
 	return rate;

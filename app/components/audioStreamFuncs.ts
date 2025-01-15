@@ -9,7 +9,7 @@ export const isFireFoxBrowser = (): boolean => {
 
 export async function startREC(
 	globalSoundVars: globalSoundVars,
-	cbHandler: (data: Float32Array) => void,
+	cbHandler: (data: any[]) => void,
 	cbHandlerCancel: () => void,
 	thresholdDb: number
 ) {

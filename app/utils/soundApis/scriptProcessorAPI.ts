@@ -5,9 +5,10 @@ const scriptProcessorAPI = async (vars: globalSoundVars, cb: (data: any) => void
 		audio: {
 			echoCancellation: true,
 			noiseSuppression: true,
+			sampleRate: 24000,
 		},
 	});
-	vars.audioContext = new AudioContext();
+	vars.audioContext = new AudioContext({ sampleRate: 24000 });
 	const source = vars.audioContext.createMediaStreamSource(vars.audioStream);
 	vars.soundApiNode = vars.audioContext.createScriptProcessor(256, 1, 1);
 
