@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import { globalSoundVars as globalSoundVarsType } from "./MainComponent";
-import { startREC, stopREC } from "./audioStreamFuncs";
-import { appendArrays, getUserName } from "../utils/randomFuncs/randFuncs";
+import { isFireFoxBrowser, startREC, stopREC } from "./audioStreamFuncs";
+import { appendArrays, getSampleRate, getUserName } from "../utils/randomFuncs/randFuncs";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { useEffect, useRef } from "react";
 import { setIsTalking } from "../redux/slices/mainStatusSlice";
@@ -22,6 +22,21 @@ let thresholdDb = -50;
 const encoder = new Encoder({ rate: 24000, channels: 1 });
 const frameSize = 480; // 20ms at 24kHz
 let pcmBuffer: any = []; // Temporary buffer to accumulate samples
+
+function downsampleAudio(audioData: any, originalSampleRate: any, targetSampleRate: any) {
+	const ratio = originalSampleRate / targetSampleRate;
+	const newLength = Math.floor(audioData.length / ratio);
+	const resampledData = new Float32Array(newLength);
+
+	for (let i = 0; i < newLength; i++) {
+		resampledData[i] = audioData[Math.floor(i * ratio)];
+	}
+
+	return resampledData;
+}
+const isFireFox = isFireFoxBrowser();
+let originalSampleRate: any = null;
+const targetSampleRate = 24000;
 
 export const useVoiceSend = (socket: Socket | null) => {
 	const muteStatus = useAppSelector((state) => state.mainStatusSlice.isMuted);
@@ -52,7 +67,11 @@ export const useVoiceSend = (socket: Socket | null) => {
 	const cbHandler = (pcmData: any[]) => {
 		if (!isMute) {
 			// Add incoming samples to the buffer
-			pcmBuffer.push(...pcmData);
+
+			const resampledData = isFireFox
+				? downsampleAudio(pcmData, originalSampleRate, targetSampleRate)
+				: pcmData;
+			pcmBuffer.push(...(resampledData as any));
 
 			// While there are enough samples for one frame, encode them
 			while (pcmBuffer.length >= frameSize) {
@@ -62,7 +81,6 @@ export const useVoiceSend = (socket: Socket | null) => {
 
 				// Encode the frame
 				const encodedPacket = encoder.encode(new Float32Array(frame));
-				console.log(frame);
 				socket?.emit("audio-input", encodedPacket, joinedRoom, name);
 				actNcanMic();
 			}
@@ -92,6 +110,10 @@ export const useVoiceSend = (socket: Socket | null) => {
 		audioBuff = [];
 		stopREC(globalSoundVars);
 	}
+
+	useEffect(() => {
+		originalSampleRate = getSampleRate();
+	}, []);
 
 	useEffect(() => {
 		conStatus ? startRecording() : stopRecording();

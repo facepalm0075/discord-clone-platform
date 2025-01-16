@@ -2,13 +2,9 @@ import { globalSoundVars } from "../../components/MainComponent";
 
 const scriptProcessorAPI = async (vars: globalSoundVars, cb: (data: any) => void) => {
 	vars.audioStream = await navigator.mediaDevices.getUserMedia({
-		audio: {
-			echoCancellation: true,
-			noiseSuppression: true,
-			sampleRate: 24000,
-		},
+		audio: {},
 	});
-	vars.audioContext = new AudioContext({ sampleRate: 24000 });
+	vars.audioContext = new AudioContext();
 	const source = vars.audioContext.createMediaStreamSource(vars.audioStream);
 	vars.soundApiNode = vars.audioContext.createScriptProcessor(256, 1, 1);
 
