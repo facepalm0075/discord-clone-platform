@@ -1,4 +1,4 @@
-# Discord Clone Frontend
+# pouya`s Discord Clone
 
 ### Short Description
 
