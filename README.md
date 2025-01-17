@@ -3,7 +3,10 @@
 ### Short Description
 
 This is the user interface for joining rooms and participating in voice and text chats, built using **Next.js**, **Redux**, **Tailwind CSS**, and **CSS**.
+
 Backend Code: [discord-clone-server](https://github.com/facepalm0075/discord-clone-server)
+
+Live Test: [discord.pouya](https://discord.pouyaprogramming.ir/)
 
 ---
 
